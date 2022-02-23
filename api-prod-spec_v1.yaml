@@ -1,0 +1,2747 @@
+openapi: 3.0.3
+info:
+  title: OpenAPI definition
+  version: v0
+servers:
+  - url: 'http://localhost:8090/api/'
+    description: Generated server url
+tags:
+  - name: Product
+  - name: Service
+  - name: Contract-beta
+  - name: Sale
+  - name: Customer
+  - name: Supplier-beta
+  - name: Permissions
+  - name: Plans
+paths:
+  '/v1/expenses/{id}':
+    get:
+      tags:
+        - expense-controller
+      operationId: findById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResponse'
+    put:
+      tags:
+        - expense-controller
+      operationId: update
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResponse'
+    delete:
+      tags:
+        - expense-controller
+      operationId: delete
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: No Content
+  '/v1/report-generator/{type}':
+    get:
+      tags:
+        - report-controller
+      operationId: generateReport_1
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - DAILY_CASH_FLOW
+              - SALE_PER_SELLER
+        - name: startDate
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date-time
+        - name: endDate
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Data'
+    post:
+      tags:
+        - report-controller
+      operationId: generateReport
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - DAILY_CASH_FLOW
+              - SALE_PER_SELLER
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReportGeneratorFilter'
+        required: true
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataGeneric'
+  '/v1/expenses/{id}/transactions':
+    post:
+      tags:
+        - expense-controller
+      operationId: pay
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransactionRequest'
+        required: true
+      responses:
+        '200':
+          description: OK
+    delete:
+      tags:
+        - expense-controller
+      operationId: unpay
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+  '/v1/expenses/{id}/attachments':
+    get:
+      tags:
+        - expense-controller
+      operationId: listAttachments
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AttachmentResponse'
+    post:
+      tags:
+        - expense-controller
+      operationId: createAttachment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/AttachmentRequest'
+      responses:
+        '200':
+          description: OK
+  /v1/expenses:
+    get:
+      tags:
+        - expense-controller
+      operationId: list
+      parameters:
+        - name: category_id
+          in: query
+          required: false
+          schema:
+            type: string
+            format: uuid
+        - name: start_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: end_date
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: description
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: value
+          in: query
+          required: false
+          schema:
+            type: number
+        - name: page
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+        - name: size
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExpenseResponse'
+    post:
+      tags:
+        - expense-controller
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseRequest'
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResponse'
+  /v1/invoice/last:
+    get:
+      tags:
+        - invoice-notification-controller
+      operationId: lastInvoiceNotifications
+      parameters:
+        - name: references
+          in: query
+          required: true
+          schema:
+            type: array
+            items:
+              type: string
+              format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InvoiceNotificationResponse'
+  '/v1/expenses/{id}/attachments/{attachmentId}':
+    get:
+      tags:
+        - expense-controller
+      operationId: downloadAttachment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: OK
+          content:
+            application/octet-stream:
+              schema:
+                type: array
+                items:
+                  type: string
+                  format: byte
+    delete:
+      tags:
+        - expense-controller
+      operationId: deleteAttachment
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: attachmentId
+          in: path
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '204':
+          description: No Content
+  '/v1/dashboard/statements/{financeType}':
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getStatements
+      parameters:
+        - name: financeType
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - RECEIVABLE
+              - PAYABLE
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DashboardStatementResult'
+  /v1/dashboard/statements/daily/cashflow:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getDailyCashFlow
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/GeneratedReport'
+  '/v1/dashboard/overdues/{type}':
+    get:
+      tags:
+        - overdue-controller
+      operationId: findValueByType
+      parameters:
+        - name: type
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - RECEIVABLE
+              - PAYABLE
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OverdueResponse'
+  /v1/dashboard/banks/v2:
+    get:
+      tags:
+        - dashboard-controller
+      operationId: getBankList
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int32
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/DashboardBankListDto'
+  '/v1/cost-centers/{id}':
+    get:
+      tags:
+        - cost-center-controller
+      operationId: findById_1
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CostCenter'
+  /v1/cost-centers:
+    get:
+      tags:
+        - cost-center-controller
+      operationId: list_1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CostCenter'
+  '/v1/categories/{id}':
+    get:
+      tags:
+        - category-controller
+      operationId: findById_2
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+  '/v1/categories/by-category-type/{categoryType}':
+    get:
+      tags:
+        - category-controller
+      operationId: byCategoryType
+      parameters:
+        - name: categoryType
+          in: path
+          required: true
+          schema:
+            type: string
+            enum:
+              - FINANCIAL_INCOME
+              - EXPENSES
+              - TRANSFER
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /v1/categories:
+    get:
+      tags:
+        - category-controller
+      operationId: list_2
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /v1/billets:
+    get:
+      tags:
+        - billet-controller
+      operationId: getOrCreateBillet
+      parameters:
+        - name: saleUuid
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: installmentSequence
+          in: query
+          required: false
+          schema:
+            type: integer
+            format: int64
+        - name: bankAccount
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BilletResponse'
+  '/v1/bank-accounts/{id}':
+    get:
+      tags:
+        - bank-account-controller
+      operationId: findById_3
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankAccount'
+  /v1/bank-accounts:
+    get:
+      tags:
+        - bank-account-controller
+      operationId: index
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BankAccount'
+  '/v1/ab/{abName}':
+    get:
+      tags:
+        - absolute-controller
+      operationId: getAB
+      parameters:
+        - name: abName
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AbsoluteResponse'
+  /status:
+    get:
+      tags:
+        - echo-controller
+      operationId: status
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+  /swagger-resources:
+    get:
+      tags:
+        - api-resource-controller
+      operationId: swaggerResources
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwaggerResource'
+    put:
+      tags:
+        - api-resource-controller
+      operationId: swaggerResources_3
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwaggerResource'
+    post:
+      tags:
+        - api-resource-controller
+      operationId: swaggerResources_2
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwaggerResource'
+    delete:
+      tags:
+        - api-resource-controller
+      operationId: swaggerResources_6
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwaggerResource'
+    options:
+      tags:
+        - api-resource-controller
+      operationId: swaggerResources_1
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwaggerResource'
+    head:
+      tags:
+        - api-resource-controller
+      operationId: swaggerResources_5
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwaggerResource'
+    patch:
+      tags:
+        - api-resource-controller
+      operationId: swaggerResources_4
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SwaggerResource'
+  /swagger-resources/configuration/ui:
+    get:
+      tags:
+        - api-resource-controller
+      operationId: uiConfiguration
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UiConfiguration'
+    put:
+      tags:
+        - api-resource-controller
+      operationId: uiConfiguration_3
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UiConfiguration'
+    post:
+      tags:
+        - api-resource-controller
+      operationId: uiConfiguration_2
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UiConfiguration'
+    delete:
+      tags:
+        - api-resource-controller
+      operationId: uiConfiguration_6
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UiConfiguration'
+    options:
+      tags:
+        - api-resource-controller
+      operationId: uiConfiguration_1
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UiConfiguration'
+    head:
+      tags:
+        - api-resource-controller
+      operationId: uiConfiguration_5
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UiConfiguration'
+    patch:
+      tags:
+        - api-resource-controller
+      operationId: uiConfiguration_4
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/UiConfiguration'
+  /swagger-resources/configuration/security:
+    get:
+      tags:
+        - api-resource-controller
+      operationId: securityConfiguration
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SecurityConfiguration'
+    put:
+      tags:
+        - api-resource-controller
+      operationId: securityConfiguration_3
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SecurityConfiguration'
+    post:
+      tags:
+        - api-resource-controller
+      operationId: securityConfiguration_2
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SecurityConfiguration'
+    delete:
+      tags:
+        - api-resource-controller
+      operationId: securityConfiguration_6
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SecurityConfiguration'
+    options:
+      tags:
+        - api-resource-controller
+      operationId: securityConfiguration_1
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SecurityConfiguration'
+    head:
+      tags:
+        - api-resource-controller
+      operationId: securityConfiguration_5
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SecurityConfiguration'
+    patch:
+      tags:
+        - api-resource-controller
+      operationId: securityConfiguration_4
+      responses:
+        '200':
+          description: OK
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/SecurityConfiguration'
+  '/v1/product-categories/{id}':
+    get:
+      tags:
+        - Product
+      summary: Get product category by id
+      description: ''
+      operationId: findById1
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the product category
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Product Category found with the specified id
+          schema:
+            $ref: '#/definitions/ProductCategory'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Product Category not found with the specified id
+  /v1/product-categories:
+    get:
+      tags:
+        - Product
+      summary: List product categories
+      description: ''
+      operationId: list1
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: query
+          description: The name of the product category
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Product Categories found with the specified parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProductCategory'
+        '400':
+          description: >-
+            Invalid search parameters. The possible reasons are : <ul><li>A
+            invalid search parameter was provided</li><li>No search parameters
+            were provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+  '/v1/products/{id}':
+    get:
+      tags:
+        - Product
+      summary: Get product by id
+      description: ''
+      operationId: findById2
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the product
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Product found with the specified id
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Product not found with the specified id
+    put:
+      tags:
+        - Product
+      summary: Update product
+      description: ''
+      operationId: update1
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the product to be updated
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - in: body
+          name: body
+          description: The product to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/ProductUpdate'
+      responses:
+        '200':
+          description: Product updated
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        '400':
+          description: Invalid product provided in the request body
+    delete:
+      tags:
+        - Product
+      summary: Delete product
+      description: ''
+      operationId: delete1
+      parameters:
+        - name: id
+          in: path
+          description: The id of the product to be deleted
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '204':
+          description: Product deleted
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Product not found with the specified id
+  /v1/products:
+    get:
+      tags:
+        - Product
+      summary: List products by filters
+      description: ''
+      operationId: list2
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: query
+          description: The name of the product
+          required: false
+          type: string
+        - name: code
+          in: query
+          description: The code of the product
+          required: false
+          type: string
+        - name: barcode
+          in: query
+          description: The barcode of the product
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Products found with the specified parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ProductResponse'
+        '400':
+          description: >-
+            Invalid search parameters. The possible reasons are : <ul><li>A
+            invalid search parameter was provided</li><li>No search parameters
+            were provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+    post:
+      tags:
+        - Product
+      summary: Create product
+      description: ''
+      operationId: create1
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The product to be created
+          required: true
+          schema:
+            $ref: '#/definitions/ProductRequest'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        '201':
+          description: Product created
+          schema:
+            $ref: '#/definitions/ProductResponse'
+        '400':
+          description: Product not provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '422':
+          description: >-
+            Invalid product provided. The possible reasons are : <ul><li>A
+            product with an unknown field was provided in the request
+            body</li><li>A field of the provided sale was null or with invalid
+            values</li></ul>
+  '/v1/services/{id}':
+    get:
+      tags:
+        - Service
+      summary: Get service by id
+      description: ''
+      operationId: findById3
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the service
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Service found with the specified id
+          schema:
+            $ref: '#/definitions/ServiceResponse'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Service not found with the specified id
+    put:
+      tags:
+        - Service
+      summary: Update service
+      description: ''
+      operationId: update2
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the service to be updated
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - in: body
+          name: body
+          description: The service to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/ServiceUpdate'
+      responses:
+        '200':
+          description: Service updated
+          schema:
+            $ref: '#/definitions/ServiceResponse'
+        '400':
+          description: Invalid service provided in the request body
+    delete:
+      tags:
+        - Service
+      summary: Delete service
+      description: ''
+      operationId: delete2
+      parameters:
+        - name: id
+          in: path
+          description: The id of the service to be deleted
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '204':
+          description: Service deleted
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Service not found with the specified id
+  /v1/services:
+    get:
+      tags:
+        - Service
+      summary: List services by filters
+      description: ''
+      operationId: list3
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: query
+          description: The name of the service
+          required: false
+          type: string
+        - name: code
+          in: query
+          description: The code of the service
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Services found with the specified parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/ServiceResponse'
+        '400':
+          description: >-
+            Invalid search parameters. The possible reasons are : <ul><li>A
+            invalid search parameter was provided</li><li>No search parameters
+            were provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+    post:
+      tags:
+        - Service
+      summary: Create service
+      description: ''
+      operationId: create2
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The service to be created
+          required: true
+          schema:
+            $ref: '#/definitions/ServiceRequest'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ServiceResponse'
+        '201':
+          description: Service created
+          schema:
+            $ref: '#/definitions/ServiceResponse'
+        '400':
+          description: Service not provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '422':
+          description: >-
+            Invalid service provided. The possible reasons are : <ul><li>A
+            service with a unknown field was provided in the request
+            body</li><li>Some field of the provided sale was null or with
+            invalid values</li></ul>
+  '/v1/contracts/{id}':
+    get:
+      tags:
+        - Contract-beta
+      summary: Get contract by id
+      description: >-
+        This endpoint is still under construction and can be modified without
+        further warning.
+      operationId: findById4
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The contract id
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Contract found with the specified id
+          schema:
+            $ref: '#/definitions/ContractResponse'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Contract not found with the specified id
+  /v1/contracts:
+    post:
+      tags:
+        - Contract-beta
+      summary: Create contract
+      description: >-
+        This endpoint is still under construction and can be modified without
+        further warning.
+      operationId: create3
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The contract to be created
+          required: true
+          schema:
+            $ref: '#/definitions/ContractRequest'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/ContractResponse'
+        '201':
+          description: Contract created
+          schema:
+            $ref: '#/definitions/ContractResponse'
+        '400':
+          description: Contract not provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '422':
+          description: >-
+            Invalid contract provided. The possible reasons are : <br/><ul><li>A
+            contract with an unknown field was provided in the request
+            body</li><li>A field of the provided sale was null or with invalid
+            values</li></ul>
+  '/v1/sales/{id}/installments/{number}':
+    get:
+      tags:
+        - Sale
+      summary: Get sale's installment by number
+      description: ''
+      operationId: get
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The sale id
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - name: number
+          in: path
+          description: The installment number
+          required: true
+          type: string
+          x-example: '1'
+      responses:
+        '200':
+          description: Installment found with the specified number
+          schema:
+            $ref: '#/definitions/Installment'
+        '400':
+          description: Invalid sale id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '404':
+          description: Installment not found with the specified number
+    put:
+      tags:
+        - Sale
+      summary: Update sale's installment
+      description: ''
+      operationId: update3
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The sale id
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - name: number
+          in: path
+          description: The installment number
+          required: true
+          type: string
+          x-example: '1'
+        - in: body
+          name: body
+          description: The installment to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/InstallmentUpdate'
+      responses:
+        '200':
+          description: Installment updated
+          schema:
+            $ref: '#/definitions/Installment'
+        '400':
+          description: Invalid installment provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+  '/v1/sales/{id}/items':
+    get:
+      tags:
+        - Sale
+      summary: List sale items by filters
+      description: ''
+      operationId: list4
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The sale id
+          required: true
+          type: string
+          x-example: 3bca101e-3c3b-4293-b8a9-7fc918313572
+        - name: Type
+          in: query
+          description: The type of the sale item - can be 'Product' or 'Service'
+          required: false
+          type: string
+        - name: Description
+          in: query
+          description: The description of the sale item
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Sale items found with the search parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/NegotiationItem'
+        '400':
+          description: >-
+            Invalid search parameters.  The possible reasons are : <ul> <li>A
+            invalid search parameter was provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+  '/v1/sales/{id}':
+    get:
+      tags:
+        - Sale
+      summary: Get sale by id
+      description: >-
+        The returned format is determined by the header passed:
+        <br/><ul><li><pre>Accept : application/json</pre> - A json
+        representation of the sale will be returned </li><li><pre>Accept :
+        application/pdf</pre> - A pdf representation of the sale will be
+        returned </li></ul><br/>When no header is passed, the sale will be
+        returned in the default application/json format
+      operationId: findById5
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The sale id
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Sale found with the specified id
+          schema:
+            $ref: '#/definitions/SaleResponse'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Sale not found with the specified id
+    put:
+      tags:
+        - Sale
+      summary: Update sale
+      description: ''
+      operationId: update4
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the sale to be updated
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - in: body
+          name: body
+          description: The sale to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/SaleUpdate'
+      responses:
+        '200':
+          description: Sale updated
+          schema:
+            $ref: '#/definitions/SaleResponse'
+        '400':
+          description: Invalid sale provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+    delete:
+      tags:
+        - Sale
+      summary: Delete sale
+      description: ''
+      operationId: delete3
+      parameters:
+        - name: id
+          in: path
+          description: The id of the sale to be deleted
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '204':
+          description: Sale deleted
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Sale not found with the specified id
+  /v1/sales/banks:
+    get:
+      tags:
+        - Sale
+      summary: List bank accounts by filters
+      description: >-
+        This accepts two parameters as search
+        filters<br/><ul><li><pre>search</pre> - Name of the bank
+        account</li><li><pre>paymentType</pre> - The payment method of the bank
+        account</li></ul><br/><li><b>BANKING_BILLET</b>: is equivalent to
+        'Boleto Bancário'</li><li><b>BANKING_TRANSFER</b>: is equivalent to
+        'Transferência Bancária'</li><li><b>DIGITAL_WALLET</b>: is equivalent to
+        'Carteira Digital'</li><li><b>CREDIT_CARD</b>: is equivalent to 'Cartão
+        de Débito'</li>
+      operationId: getBanks
+      produces:
+        - application/json
+      parameters:
+        - name: search
+          in: query
+          description: The name of the bank account
+          required: false
+          type: string
+        - name: paymentType
+          in: query
+          description: The payment type of the bank account
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Banks found with the search parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SaleBankResponse'
+        '400':
+          description: >-
+            Invalid search parameters.  The possible reasons are : <ul> <li>A
+            invalid search parameter was provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+  /v1/sales/sellers:
+    get:
+      tags:
+        - Sale
+      summary: List sellers
+      description: ''
+      operationId: listSellers
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Sales found with the search parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Seller'
+        '400':
+          description: >-
+            Invalid search parameters.  The possible reasons are : <ul> <li>A
+            invalid search parameter was provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+  '/v1/sales/{id}/pdf':
+    get:
+      tags:
+        - Sale
+      summary: Get sale PDF by id
+      description: >-
+        This accepts two parameters as search
+        filters<br/><ul><li><pre>search</pre> - Name of the bank
+        account</li><li><pre>paymentType</pre> - The payment method of the bank
+        account</li></ul><br/><li><b>BANKING_BILLET</b>: is equivalent to
+        'Boleto Bancário'</li><li><b>BANKING_TRANSFER</b>: is equivalent to
+        'Transferência Bancária'</li><li><b>DIGITAL_WALLET</b>: is equivalent to
+        'Carteira Digital'</li><li><b>CREDIT_CARD</b>: is equivalent to 'Cartão
+        de Débito'</li>
+      operationId: findPdfById
+      produces:
+        - application/pdf
+      parameters:
+        - name: id
+          in: path
+          description: The sale id
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Sale found with the specified id
+          schema:
+            $ref: '#/definitions/SaleResponse'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Sale not found with the specified id
+  /v1/sales/totals:
+    get:
+      tags:
+        - Sale
+      summary: Get sales totals by filter
+      description: >-
+        This accepts two parameters as search filters:
+        <br/><ul><li><pre>modifiedAfter</pre> - Date in "timestamp" format.
+        Sales from the parameter date will be considered.
+        </li><li><pre>textualSearch</pre> - It will filter by negotiator name if
+        value is a text or by sale number if value is a number. If informed, the
+        "timestamp" parameter will be ignored</li></ul><br/>
+      operationId: getTotalsByFilter
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Returned an object with totals found
+          schema:
+            $ref: '#/definitions/TotalStatusNegotiationPreview'
+  /v1/sales:
+    get:
+      tags:
+        - Sale
+      summary: List sales by filters
+      description: ''
+      operationId: list5
+      produces:
+        - application/json
+      parameters:
+        - name: emission_start
+          in: query
+          description: The sale's emission date start filter
+          required: false
+          type: string
+        - name: emission_end
+          in: query
+          description: The sale's emission date end filter
+          required: false
+          type: string
+        - name: status
+          in: query
+          description: The sale's status
+          required: false
+          type: string
+        - name: customer_id
+          in: query
+          description: The sale's customer id
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Sales found with the search parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SaleResponse'
+        '400':
+          description: >-
+            Invalid search parameters.  The possible reasons are : <ul> <li>A
+            invalid search parameter was provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+    post:
+      tags:
+        - Sale
+      summary: Create sale
+      description: ''
+      operationId: create4
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The sale to be created
+          required: true
+          schema:
+            $ref: '#/definitions/SaleRequest'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SaleResponse'
+        '201':
+          description: Sale created
+          schema:
+            $ref: '#/definitions/SaleResponse'
+        '400':
+          description: Sale not provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '422':
+          description: >-
+            Invalid sale provided. The possible reasons are : <br/><ul><li>A
+            sale with an unknown field was provided in the request
+            body</li><li>A field of the provided sale was null or with invalid
+            values</li></ul>
+  '/v1/customers/{id}/contacts':
+    get:
+      tags:
+        - Customer
+      summary: List customer contacts
+      description: ''
+      operationId: listContacts
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The customer's id to retrieve contacts
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Contacts found
+          schema:
+            $ref: '#/definitions/Contact'
+        '400':
+          description: Invalid id
+        '404':
+          description: Customer not found
+  '/v1/customers/inactivate/{id}':
+    delete:
+      tags:
+        - Customer
+      summary: Inactivate customer
+      description: ''
+      operationId: inactivate
+      parameters:
+        - name: id
+          in: path
+          description: The id of the custumer to be inactivated
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '204':
+          description: Customer deleted
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '404':
+          description: Customer not found with the specified id
+  '/v1/customers/{id}':
+    get:
+      tags:
+        - Customer
+      summary: Get customer by id
+      description: ''
+      operationId: findById6
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The customer's id to search the customer
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Customer found with the specified id
+          schema:
+            $ref: '#/definitions/CustomerResponse'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '404':
+          description: Customer not found with the specified id
+    put:
+      tags:
+        - Customer
+      summary: Update customer
+      description: ''
+      operationId: update5
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the custumer to be updated
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - in: body
+          name: body
+          description: The customer to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/CustomerUpdate'
+      responses:
+        '200':
+          description: Customer updated
+          schema:
+            $ref: '#/definitions/CustomerResponse'
+        '400':
+          description: Invalid customer provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+    delete:
+      tags:
+        - Customer
+      summary: Delete customer
+      description: ''
+      operationId: delete4
+      parameters:
+        - name: id
+          in: path
+          description: The id of the custumer to be deleted
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '204':
+          description: Customer deleted
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '404':
+          description: Customer not found with the specified id
+  /v1/customers:
+    get:
+      tags:
+        - Customer
+      summary: List customers by filters
+      description: ''
+      operationId: list6
+      produces:
+        - application/json
+      parameters:
+        - name: search
+          in: query
+          description: >-
+            When present, the search will be made in customer's company_name,
+            name, email and document(CPF / CNPJ) fields, and other text
+            parameters(company_name, name and document)  will be ignored
+          required: false
+          type: string
+        - name: name
+          in: query
+          description: The customer's name
+          required: false
+          type: string
+        - name: company_name
+          in: query
+          description: The customer's company name
+          required: false
+          type: string
+        - name: document
+          in: query
+          description: The customer's document number
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+        - name: status
+          in: query
+          description: >-
+            This field accepts ENABLED or DISABLED status, and it was made to
+            match with the search field. When present, it will filter only
+            active or inactive customers. When not present, will be filtered for
+            all customers
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Customers found with the search parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/CustomerResponse'
+        '400':
+          description: >-
+            Invalid search parameters.  The possible reasons are : <ul> <li>A
+            invalid search parameter was provided</li> <li>No search parameters
+            were provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+    post:
+      tags:
+        - Customer
+      summary: Create customer
+      description: ''
+      operationId: create5
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The customer to be created
+          required: true
+          schema:
+            $ref: '#/definitions/CustomerRequest'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/CustomerResponse'
+        '201':
+          description: Customer created
+          schema:
+            $ref: '#/definitions/CustomerResponse'
+        '400':
+          description: Customer not provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '422':
+          description: >-
+            Invalid customer provided.The possible reasons are : <ul><li>A
+            customer with an unknown field was provided in the request
+            body</li><li>A field of the provided sale was null or with invalid
+            values</li></ul>
+  '/v1/suppliers/{id}':
+    get:
+      tags:
+        - Supplier-beta
+      summary: Get supplier by id
+      description: >-
+        This endpoint is still under construction and can be modified without
+        further warning.
+      operationId: findById7
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The supplier's id to search the supplier
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '200':
+          description: Supplier found with the specified id
+          schema:
+            $ref: '#/definitions/SupplierResponse'
+        '400':
+          description: Invalid id provided - it must be a valid UUID
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '404':
+          description: Supplier not found with the specified id
+    put:
+      tags:
+        - Supplier-beta
+      summary: Update supplier
+      description: >-
+        This endpoint is still under construction and can be modified without
+        further warning.
+      operationId: update6
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - name: id
+          in: path
+          description: The id of the supplier to be updated
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+        - in: body
+          name: body
+          description: The supplier to be updated
+          required: true
+          schema:
+            $ref: '#/definitions/SupplierUpdate'
+      responses:
+        '200':
+          description: Supplier updated
+          schema:
+            $ref: '#/definitions/SupplierResponse'
+        '400':
+          description: Invalid supplier provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+    delete:
+      tags:
+        - Supplier-beta
+      summary: Delete supplier
+      description: >-
+        This endpoint is still under construction and can be modified without
+        further warning.
+      operationId: delete5
+      parameters:
+        - name: id
+          in: path
+          description: The id of the supplier to be deleted
+          required: true
+          type: string
+          x-example: 48806cbb-c8f9-42f6-a286-5d4b9414a04d
+      responses:
+        '204':
+          description: Supplier deleted
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '404':
+          description: Supplier not found with the specified id
+  /v1/suppliers:
+    get:
+      tags:
+        - Supplier-beta
+      summary: List suppliers by filters
+      description: >-
+        This endpoint is still under construction and can be modified without
+        further warning.
+      operationId: list7
+      produces:
+        - application/json
+      parameters:
+        - name: name
+          in: query
+          description: The supplier's name when NATURAL person
+          required: false
+          type: string
+        - name: company_name
+          in: query
+          description: The supplier's company name when LEGAL person
+          required: false
+          type: string
+        - name: document
+          in: query
+          description: The supplier's document number
+          required: false
+          type: string
+        - name: page
+          in: query
+          description: The page of the list to be returned
+          required: false
+          type: string
+        - name: size
+          in: query
+          description: The quantity of items in the page to be returned
+          required: false
+          type: string
+      responses:
+        '200':
+          description: Suppliers found with the search parameters
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/SupplierResponse'
+        '400':
+          description: >-
+            Invalid search parameters.  The possible reasons are : <ul> <li>A
+            invalid search parameter was provided</li> <li>No search parameters
+            were provided</li></ul>
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+    post:
+      tags:
+        - Supplier-beta
+      summary: Create supplier
+      description: >-
+        This endpoint is still under construction and can be modified without
+        further warning.
+      operationId: create6
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: The supplier to be created
+          required: true
+          schema:
+            $ref: '#/definitions/SupplierRequest'
+      responses:
+        '200':
+          description: successful operation
+          schema:
+            $ref: '#/definitions/SupplierResponse'
+        '201':
+          description: Supplier created
+          schema:
+            $ref: '#/definitions/SupplierResponse'
+        '400':
+          description: Supplier not provided in the request body
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token provided or
+            no token provided
+        '422':
+          description: >-
+            Invalid supplier provided.The possible reasons are : <ul><li>A
+            supplier with an unknown field was provided in the request
+            body</li><li>A field of the provided sale was null or with invalid
+            values</li></ul>
+  /v1/plans/current:
+    get:
+      tags:
+        - Plans
+      summary: Get current user plans
+      description: ''
+      operationId: getCurrentPlan
+      produces:
+        - application/json
+      parameters: []
+      responses:
+        '200':
+          description: Plan found for company
+          schema:
+            $ref: '#/definitions/PlanCountRestriction'
+        '401':
+          description: >-
+            Unauthorized token - it may be due to an invalid token or no token
+            provided
+        '404':
+          description: Subscription plan not found for this account
+components:
+  schemas:
+    ExpenseRequest:
+      required:
+        - bank_account_id
+        - category_id
+        - competence_date
+        - description
+        - due_date
+        - emission
+        - status
+        - value
+      type: object
+      properties:
+        emission:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - PENDING
+            - ACQUITTED
+            - CANCELED
+        description:
+          type: string
+        note:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        competence_date:
+          type: string
+          format: date-time
+        acquit_date:
+          type: string
+          format: date-time
+        value:
+          type: number
+        amount_paid:
+          type: number
+        discount:
+          type: number
+        interest:
+          type: number
+        bank_account_id:
+          type: string
+          format: uuid
+        category_id:
+          type: string
+          format: uuid
+        supplier_id:
+          type: string
+          format: uuid
+        cost_center_id:
+          type: string
+          format: uuid
+    ExpenseResponse:
+      required:
+        - bank_account_id
+        - competence_date
+        - due_date
+        - value
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        emission:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - PENDING
+            - ACQUITTED
+            - CANCELED
+        description:
+          type: string
+        note:
+          type: string
+        due_date:
+          type: string
+          format: date-time
+        competence_date:
+          type: string
+          format: date-time
+        acquit_date:
+          type: string
+          format: date-time
+        value:
+          type: number
+        amount_paid:
+          type: number
+        discount:
+          type: number
+        interest:
+          type: number
+        bank_account_id:
+          type: string
+          format: uuid
+        category_id:
+          type: string
+          format: uuid
+        supplier_id:
+          type: string
+          format: uuid
+        cost_center_id:
+          type: string
+          format: uuid
+    ReportGeneratorFilter:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        type:
+          type: string
+          enum:
+            - DAILY_CASH_FLOW
+            - SALE_PER_SELLER
+        bankAccounts:
+          type: array
+          items:
+            type: integer
+            format: int64
+        allBanksSelected:
+          type: boolean
+        onlyActiveBanks:
+          type: boolean
+        considerUnbanked:
+          type: boolean
+    DataGeneric:
+      type: object
+      properties:
+        _metadata:
+          $ref: '#/components/schemas/Metadata'
+        totalGroups:
+          type: number
+          format: double
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportGeneratorGroupGeneric'
+    Metadata:
+      type: object
+      properties:
+        groupTitle:
+          type: string
+        columns:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetadataColumn'
+    MetadataColumn:
+      type: object
+      properties:
+        index:
+          type: integer
+          format: int32
+        label:
+          type: string
+        type:
+          type: string
+          enum:
+            - CURRENCY
+            - STRING
+            - INTEGER
+            - FLOAT
+            - DATE
+            - PERCENTAGE
+        orderBy:
+          type: string
+          enum:
+            - ASC
+            - DESC
+        sumInGroup:
+          type: boolean
+    ReportGeneratorGroupGeneric:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportGeneratorItemGeneric'
+        sum:
+          type: number
+          format: double
+    ReportGeneratorItemGeneric:
+      type: object
+      properties:
+        linkParams:
+          type: array
+          items:
+            type: string
+        values:
+          type: array
+          items:
+            type: object
+    TransactionRequest:
+      required:
+        - acquit_date
+        - amount_paid
+      type: object
+      properties:
+        interest:
+          type: number
+        discount:
+          type: number
+        amount_paid:
+          type: number
+        acquit_date:
+          type: string
+          format: date-time
+    AttachmentRequest:
+      required:
+        - file
+      type: object
+      properties:
+        file:
+          type: string
+          format: binary
+    Data:
+      type: object
+      properties:
+        _metadata:
+          $ref: '#/components/schemas/Metadata'
+        totalGroups:
+          type: number
+          format: double
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportGeneratorGroup'
+    ReportGeneratorGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReportGeneratorItem'
+        sum:
+          type: number
+          format: double
+    ReportGeneratorItem:
+      type: object
+      properties:
+        values:
+          type: array
+          items:
+            type: number
+            format: double
+        linkParams:
+          type: array
+          items:
+            type: string
+    InvoiceNotificationResponse:
+      type: object
+      properties:
+        sentAt:
+          type: string
+          format: date-time
+        lastOpenedAt:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - SENT
+            - READ
+        reference:
+          type: string
+    AttachmentResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        filename:
+          type: string
+        href:
+          type: string
+    DashboardStatementResult:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/DashboardStatementSummary'
+    DashboardStatementSummary:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - RECEIVABLE
+            - PAYABLE
+        daily:
+          type: number
+        monthly:
+          type: number
+        totalPendings:
+          type: number
+        statementsSummaryBlankslate:
+          type: string
+          enum:
+            - NO_STATEMENTS_EVER_CREATED
+            - NOTHING_TO_ACCOMPLISH
+            - ALL_ACCOMPLISHED
+        countStatements:
+          type: integer
+          format: int64
+        state:
+          type: string
+          enum:
+            - PENDING
+            - ACQUITTED
+            - CANCELED
+    GeneratedReport:
+      type: object
+      properties:
+        data:
+          $ref: '#/components/schemas/Data'
+    OverdueResponse:
+      type: object
+      properties:
+        overdue:
+          type: number
+    Banco:
+      type: object
+      properties:
+        nmBanco:
+          type: string
+        accountType:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+        billetRfbConfigured:
+          type: boolean
+    DashboardBankDTO:
+      type: object
+      properties:
+        bankAccount:
+          $ref: '#/components/schemas/Banco'
+        balance:
+          type: number
+          format: double
+    DashboardBankListDto:
+      type: object
+      properties:
+        dashboardBankAccounts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardBankDTO'
+        totalBankAccounts:
+          type: integer
+          format: int32
+    CostCenter:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+          writeOnly: true
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+          writeOnly: true
+    BilletResponse:
+      type: object
+      properties:
+        billetUuid:
+          type: string
+          format: uuid
+        tenantId:
+          type: integer
+          format: int64
+        url:
+          type: string
+        registered:
+          type: boolean
+    BankAccount:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        uuid:
+          type: string
+          format: uuid
+          writeOnly: true
+        description:
+          type: string
+          writeOnly: true
+    AbsoluteResponse:
+      type: object
+      properties:
+        name:
+          type: string
+        status:
+          type: boolean
+    SwaggerResource:
+      type: object
+      properties:
+        name:
+          type: string
+        url:
+          type: string
+        swaggerVersion:
+          type: string
+        location:
+          type: string
+          deprecated: true
+    UiConfiguration:
+      type: object
+      properties:
+        deepLinking:
+          type: boolean
+        displayOperationId:
+          type: boolean
+        defaultModelsExpandDepth:
+          type: integer
+          format: int32
+        defaultModelExpandDepth:
+          type: integer
+          format: int32
+        defaultModelRendering:
+          type: string
+          enum:
+            - example
+            - model
+        displayRequestDuration:
+          type: boolean
+        docExpansion:
+          type: string
+          enum:
+            - none
+            - list
+            - full
+        filter:
+          type: object
+        maxDisplayedTags:
+          type: integer
+          format: int32
+        operationsSorter:
+          type: string
+          enum:
+            - alpha
+            - method
+        showExtensions:
+          type: boolean
+        tagsSorter:
+          type: string
+          enum:
+            - alpha
+        validatorUrl:
+          type: string
+        apisSorter:
+          type: string
+          deprecated: true
+        jsonEditor:
+          type: boolean
+          deprecated: true
+        showRequestHeaders:
+          type: boolean
+          deprecated: true
+        supportedSubmitMethods:
+          type: array
+          items:
+            type: string
+    SecurityConfiguration:
+      type: object
+      properties:
+        apiKey:
+          type: string
+          deprecated: true
+        apiKeyVehicle:
+          type: string
+          deprecated: true
+        apiKeyName:
+          type: string
+          deprecated: true
+        clientId:
+          type: string
+        clientSecret:
+          type: string
+        realm:
+          type: string
+        appName:
+          type: string
+        scopeSeparator:
+          type: string
+        additionalQueryStringParams:
+          type: object
+          additionalProperties:
+            type: object
+        useBasicAuthenticationWithAccessCodeGrant:
+          type: boolean
